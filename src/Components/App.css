@@ -1,0 +1,63 @@
+* {
+  color: cadetblue;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background: black;
+}
+
+.App {
+  margin: 0 auto;
+  width: 1010px;
+  background: blueviolet;
+  padding: 36px;
+}
+
+.container {
+  width: 938px;
+}
+
+header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+header input {
+  width: 100%;
+  height: 40px;
+  margin: 40px 0;
+}
+
+.header-buttons {}
+
+.main-content {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.film-card {
+  display: flex;
+  width: 451px;
+  height: 279px;
+  background-color: darkslateblue;
+  margin-bottom: 36px;
+}
+
+.film-info {
+  width: 100%;
+  margin: 0 20px 0 10px;
+}
+
+.film-header {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.film-image {
+  width: 183px;
+  height: 100%;
+}
