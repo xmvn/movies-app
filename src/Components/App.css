@@ -1,16 +1,13 @@
 * {
-  color: cadetblue;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  background: black;
 }
 
 .App {
   margin: 0 auto;
   width: 1010px;
-  background: blueviolet;
-  padding: 36px;
+  padding: 20px;
 }
 
 .container {
@@ -23,10 +20,24 @@ header {
   align-items: center;
 }
 
-header input {
+header form {
   width: 100%;
   height: 40px;
-  margin: 40px 0;
+  margin-bottom: 40px;
+}
+
+form input {
+  width: 100%;
+  height: 40px;
+  border: 1px solid #d9d9d9;
+  font-size: 16px;
+  line-height: 22px;
+  padding-left: 12px;
+  border-radius: 15px;
+}
+
+form input::placeholder {
+  color: rgba(0, 0, 0, 0.25);
 }
 
 .header-buttons {}
@@ -41,13 +52,16 @@ header input {
   display: flex;
   width: 451px;
   height: 279px;
-  background-color: darkslateblue;
   margin-bottom: 36px;
+  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.15);
+  border-radius: 5px;
 }
 
 .film-info {
-  width: 100%;
-  margin: 0 20px 0 10px;
+  width: 238px;
+  margin: 10px 20px 0 10px;
+  display: flex;
+  flex-direction: column;
 }
 
 .film-header {
@@ -60,4 +74,101 @@ header input {
 .film-image {
   width: 183px;
   height: 100%;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+
+.film-date {
+  font-size: 12px;
+  color: #827e7e;
+  line-height: 22px;
+  margin-bottom: 5px;
+}
+
+.film-title {
+  font-size: 20px;
+  line-height: 28px;
+  flex-shrink: 1;
+  cursor: pointer;
+}
+
+.film-title:hover {
+  text-decoration: underline;
+}
+
+.film-genres {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.film-genres span {
+  font-size: 12px;
+  border: 2px solid #D9D9D9;
+  padding: 2px;
+  margin-right: 5px;
+  margin-top: 5px;
+  border-radius: 5%;
+  background-color: #FAFAFA;
+  cursor: pointer;
+}
+
+.film-genres span:hover {
+  background-color: #353434;
+  color: white;
+  border-color: #353434;
+}
+
+.film-genres p {
+  font-size: 12px;
+  color: #827e7e;
+}
+
+.film-desc {
+  margin-top: 5px;
+  font-size: 12px;
+  line-height: 22px;
+}
+
+.film-rating {
+  width: 30px;
+  height: 30px;
+  border: 2px solid #E9D100;
+  border-radius: 50%;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  line-height: 22px;
+  flex-shrink: 0;
+}
+
+.film-stars {
+  margin-top: auto;
+  height: 46px;
+  width: 239px;
+  text-align: center;
+  color: #E9D100;
+  font-size: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+footer {
+  width: 100%;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+
+.loading {
+  width: 100%;
+  height: 100vh;
+  font-size: 80px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
