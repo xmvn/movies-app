@@ -1,8 +1,9 @@
 /* eslint-disable no-unused-vars */
 import './App.css'
 import { useState, useEffect } from 'react'
-import { Rate, Pagination, Tabs } from 'antd'
+import { Rate, Pagination, Tabs, Spin, Alert } from 'antd'
 import { format, parseISO } from 'date-fns'
+import { Offline, Online } from 'react-detect-offline'
 
 function slicedString(str, maxLength) {
   if (str.length <= maxLength) {
@@ -16,6 +17,8 @@ const App = () => {
   const [loading, setLoading] = useState(true)
   const [query, setQuery] = useState('return')
   const [page, setPage] = useState(1)
+  const [error, setError] = useState(false)
+  const [errorMessage, setErrorMessage] = useState()
   const genres = [
     {
       id: 28,
@@ -123,12 +126,18 @@ const App = () => {
         `https://api.themoviedb.org/3/search/movie?query=${query}&include_adult=true&language=en-US&page=${page}`,
         options
       )
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`)
+      }
       const data = await response.json()
       console.log(data)
       setMovieData(data)
-      setLoading(false)
     } catch (error) {
       console.error('Ошибка при получении данных:', error)
+      setError(true)
+      setErrorMessage(error.message)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -145,7 +154,6 @@ const App = () => {
       fetchData()
     }
   }
-  if (loading) return <div className="loading"> Идет загрузка, пожалуйста, подождите...</div>
   return (
     <div className="App">
       <div className="container">
@@ -163,59 +171,79 @@ const App = () => {
           </form>{' '}
         </header>
         <div className="main-content">
-          {movieData ? (
-            movieData.results.map((e) => {
-              const genreNames = getGenreNames(e.genre_ids)
+          <Online>
+            {!error && !loading && movieData ? (
+              movieData.results.map((e) => {
+                const genreNames = getGenreNames(e.genre_ids)
 
-              return (
-                <div className="film-card" key={e.id}>
-                  <img
-                    src={
-                      e.poster_path
-                        ? `https://image.tmdb.org/t/p/original${e.poster_path}`
-                        : 'https://cdn.pixabay.com/photo/2015/11/03/08/56/question-mark-1019820_1280.jpg'
-                    }
-                    alt="film poster"
-                    className="film-image"
-                  />
-                  <div className="film-info">
-                    <div className="film-header">
-                      <p className="film-title" onClick={() => console.log(e.title)}>
-                        {slicedString(e.title, 20)}
+                return (
+                  <div className="film-card" key={e.id}>
+                    <img
+                      src={
+                        e.poster_path
+                          ? `https://image.tmdb.org/t/p/original${e.poster_path}`
+                          : 'https://cdn.pixabay.com/photo/2015/11/03/08/56/question-mark-1019820_1280.jpg'
+                      }
+                      alt="film poster"
+                      className="film-image"
+                    />
+                    <div className="film-info">
+                      <div className="film-header">
+                        <p className="film-title" onClick={() => console.log(e.title)} title={e.title}>
+                          {slicedString(e.title, 20)}
+                        </p>
+                        <p className="film-rating">{e.vote_average.toFixed(1)}</p>
+                      </div>
+                      <p className="film-date">
+                        {e.release_date ? format(parseISO(e.release_date), 'MMMM d, y') : 'no release data'}
                       </p>
-                      <p className="film-rating">{e.vote_average.toFixed(1)}</p>
+                      <div className="film-genres">
+                        {genreNames.length > 0 ? (
+                          genreNames.map((genre, index) => <span key={index}>{genre}</span>)
+                        ) : (
+                          <p>no genres set yet</p>
+                        )}
+                      </div>
+                      <div className="film-desc" title={e.overview}>
+                        {slicedString(e.overview, 250)}
+                      </div>
+                      <Rate className="film-stars" allowHalf count={10} defaultValue={e.vote_average} />
                     </div>
-                    <p className="film-date">
-                      {e.release_date ? format(parseISO(e.release_date), 'MMMM d, y') : 'no release data'}
-                    </p>
-                    <div className="film-genres">
-                      {genreNames.length > 0 ? (
-                        genreNames.map((genre, index) => <span key={index}>{genre}</span>)
-                      ) : (
-                        <p>no genres set yet</p>
-                      )}
-                    </div>
-                    <div className="film-desc">{slicedString(e.overview, 250)}</div>
-                    <Rate className="film-stars" allowHalf disabled count={10} defaultValue={e.vote_average} />
                   </div>
-                </div>
-              )
-            })
-          ) : (
-            <></>
-          )}
+                )
+              })
+            ) : error ? (
+              <div className="error-message" onClick={() => console.error(errorMessage)}>
+                <Alert message="Error" description={errorMessage} type="error" showIcon />
+              </div>
+            ) : (
+              <div className="loading">
+                <Spin size="large" />
+              </div>
+            )}
+          </Online>
+          <Offline>
+            <div className="error-message" onClick={() => console.error(errorMessage)}>
+              <Alert message="Error" description={'траблы с инетом'} type="error" showIcon />
+            </div>
+          </Offline>
         </div>
-        <footer>
-          <Pagination
-            defaultCurrent={page}
-            current={movieData.page}
-            total={movieData.total_pages}
-            pageSize={1}
-            onChange={(e) => setPage(e)}
-            showQuickJumper={false}
-            showSizeChanger={false}
-          />
-        </footer>
+        {!error && !loading ? (
+          <footer>
+            <Pagination
+              defaultCurrent={page}
+              current={movieData.page}
+              total={movieData.total_pages}
+              pageSize={1}
+              onChange={(e) => setPage(e)}
+              showQuickJumper={false}
+              showSizeChanger={false}
+              hideOnSinglePage={true}
+            />
+          </footer>
+        ) : (
+          <></>
+        )}
       </div>
     </div>
   )
