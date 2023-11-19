@@ -20,13 +20,13 @@ header {
   align-items: center;
 }
 
-header form {
+.header-search {
   width: 100%;
   height: 40px;
   margin-bottom: 40px;
 }
 
-form input {
+.header-search input {
   width: 100%;
   height: 40px;
   border: 1px solid #d9d9d9;
@@ -36,7 +36,7 @@ form input {
   border-radius: 15px;
 }
 
-form input::placeholder {
+.header-search input::placeholder {
   color: rgba(0, 0, 0, 0.25);
 }
 
@@ -184,7 +184,7 @@ footer {
     justify-content: center;
   }
 
-  header form {
+  .header-search {
     max-width: 451px;
   }
 }

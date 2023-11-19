@@ -1,9 +1,10 @@
 /* eslint-disable no-unused-vars */
 import './App.css'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Rate, Pagination, Tabs, Spin, Alert } from 'antd'
 import { format, parseISO } from 'date-fns'
 import { Offline, Online } from 'react-detect-offline'
+import { debounce } from 'lodash'
 
 function slicedString(str, maxLength) {
   if (str.length <= maxLength) {
@@ -19,6 +20,15 @@ const App = () => {
   const [page, setPage] = useState(1)
   const [error, setError] = useState(false)
   const [errorMessage, setErrorMessage] = useState()
+
+  const options = {
+    method: 'GET',
+    headers: {
+      accept: 'application/json',
+      Authorization:
+        'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3ZWM3ZDQyYjdmZmZhYWMyNzczYTY2ZWEyZWJlYzBiYiIsInN1YiI6IjY1NTQxOThhYWM0MTYxMDBjNjNiM2E2YiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.s4T5sF-XCCAx7wVpaJI5Q3xv7snk_0bVnmGcJEt2h9I',
+    },
+  }
   const genres = [
     {
       id: 28,
@@ -101,6 +111,7 @@ const App = () => {
     { label: 'Search', key: 'item-1' },
     { label: 'Rated', key: 'item-2' },
   ]
+
   const getGenreNames = (ids) => {
     return ids
       .map((id) => {
@@ -112,15 +123,6 @@ const App = () => {
 
   const fetchData = async () => {
     setLoading(true)
-    const options = {
-      method: 'GET',
-      headers: {
-        accept: 'application/json',
-        Authorization:
-          'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3ZWM3ZDQyYjdmZmZhYWMyNzczYTY2ZWEyZWJlYzBiYiIsInN1YiI6IjY1NTQxOThhYWM0MTYxMDBjNjNiM2E2YiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.s4T5sF-XCCAx7wVpaJI5Q3xv7snk_0bVnmGcJEt2h9I',
-      },
-    }
-
     try {
       const response = await fetch(
         `https://api.themoviedb.org/3/search/movie?query=${query}&include_adult=true&language=en-US&page=${page}`,
@@ -142,18 +144,29 @@ const App = () => {
   }
 
   useEffect(() => {
-    fetchData()
-  }, [page])
-
-  const handleSubmit = (e) => {
-    console.log(query, page)
-    e.preventDefault()
-    if (page !== 1) {
-      setPage(1)
-    } else if (query.length > 0) {
+    let trimmedQuery = query.trim()
+    if (trimmedQuery !== '') {
       fetchData()
     }
+  }, [page, query])
+
+  const debouncedSearch = useRef(
+    debounce(async (value) => {
+      setQuery(await value)
+      setPage(1)
+    }, 1000)
+  ).current
+
+  async function handleChange(value) {
+    debouncedSearch(value)
   }
+
+  useEffect(() => {
+    return () => {
+      debouncedSearch.cancel()
+    }
+  }, [debouncedSearch])
+
   return (
     <div className="App">
       <div className="container">
@@ -161,21 +174,23 @@ const App = () => {
           <div className="header-buttons">
             <Tabs items={items} />
           </div>
-          <form onSubmit={handleSubmit}>
-            <input
-              type="text"
-              placeholder="Type to search..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-          </form>{' '}
+          <div className="header-search">
+            <input type="text" placeholder="Type to search..." onChange={(e) => handleChange(e.target.value)} />
+          </div>
         </header>
         <div className="main-content">
           <Online>
-            {!error && !loading && movieData ? (
+            {error ? (
+              <div className="error-message" onClick={() => console.error(errorMessage)}>
+                <Alert message="Error" description={errorMessage} type="error" showIcon />
+              </div>
+            ) : loading ? (
+              <div className="loading">
+                <Spin size="large" />
+              </div>
+            ) : movieData.total_results ? (
               movieData.results.map((e) => {
                 const genreNames = getGenreNames(e.genre_ids)
-
                 return (
                   <div className="film-card" key={e.id}>
                     <img
@@ -212,13 +227,9 @@ const App = () => {
                   </div>
                 )
               })
-            ) : error ? (
-              <div className="error-message" onClick={() => console.error(errorMessage)}>
-                <Alert message="Error" description={errorMessage} type="error" showIcon />
-              </div>
             ) : (
-              <div className="loading">
-                <Spin size="large" />
+              <div>
+                <p>По вашему запросу нет данных.</p>
               </div>
             )}
           </Online>
@@ -228,7 +239,7 @@ const App = () => {
             </div>
           </Offline>
         </div>
-        {!error && !loading ? (
+        {!error && !loading && (
           <footer>
             <Pagination
               defaultCurrent={page}
@@ -241,8 +252,6 @@ const App = () => {
               hideOnSinglePage={true}
             />
           </footer>
-        ) : (
-          <></>
         )}
       </div>
     </div>
