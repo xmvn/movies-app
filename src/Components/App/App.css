@@ -4,6 +4,13 @@
   box-sizing: border-box;
 }
 
+:root {
+  --green-color: #66E900;
+  --gold-color: #E9D100;
+  --orange-color: #E97E00;
+  --red-color: #E90000;
+}
+
 .App {
   margin: 0 auto;
   max-width: 1010px;
@@ -111,6 +118,7 @@ header {
   border-radius: 5%;
   background-color: #FAFAFA;
   cursor: pointer;
+  user-select: none;
 }
 
 .film-genres span:hover {
@@ -119,10 +127,6 @@ header {
   border-color: #353434;
 }
 
-.film-genres p {
-  font-size: 12px;
-  color: #827e7e;
-}
 
 .film-desc {
   margin-top: 5px;
@@ -133,7 +137,7 @@ header {
 .film-rating {
   width: 30px;
   height: 30px;
-  border: 2px solid #E9D100;
+  border: 2px solid grey;
   border-radius: 50%;
   text-align: center;
   display: flex;
@@ -142,6 +146,22 @@ header {
   font-size: 12px;
   line-height: 22px;
   flex-shrink: 0;
+}
+
+.film-rating.green {
+  border-color: var(--green-color);
+}
+
+.film-rating.gold {
+  border-color: var(--gold-color);
+}
+
+.film-rating.orange {
+  border-color: var(--orange-color);
+}
+
+.film-rating.red {
+  border-color: var(--red-color);
 }
 
 .film-stars {
